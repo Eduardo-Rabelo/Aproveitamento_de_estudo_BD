@@ -25,28 +25,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Função para carregar tarefas
-    const loadTasks = () => {
-        fetch(`/listas/${lista}/${criador}/tarefas`) // substitua 'lista1' pelo nome da lista desejada
-            .then(response => response.json())
-            .then(tasks => {
-                todoList.innerHTML = '';
-                tasks.forEach(task => {
-                    const safeTitle = JSON.stringify(task.titulo);
-                    const taskElement = document.createElement('div');
-                    taskElement.innerHTML = `
-                        <span>Título:${task.titulo} Criador:${task.nome_criador_tarefa}</span>
-                        <button onclick="deleteTask('${task.titulo}')">Excluir</button>
-                        <button onclick="viewTask('${task.titulo}')">Verificar</button>
-                        <button onclick="enterTask(${safeTitle})">Entrar</button>
-                    `;
-                    todoList.appendChild(taskElement);
-                });
-            });
-    };
+    // // Função para carregar tarefas
+    // const loadTasks = () => {
+    //     fetch(`/listas/${lista}/${criador}/tarefas`) // substitua 'lista1' pelo nome da lista desejada
+    //         .then(response => response.json())
+    //         .then(tasks => {
+    //             todoList.innerHTML = '';
+    //             tasks.forEach(task => {
+    //                 const safeTitle =  encodeURIComponent(task.titulo); //JSON.stringify(task.titulo);
+    //                 const taskElement = document.createElement('div');
+    //                 // console.log("oi")
+    //                 taskElement.innerHTML = `
+    //                     <span>Título:${task.titulo} Criador:${task.nome_criador_tarefa}</span>
+    //                     <button onclick="deleteTask('${task.titulo}')">Excluir</button>
+    //                     <button onclick="viewTask('${task.titulo}')">Verificar</button>
+    //                     <button onclick="enterTask('${safeTitle}')">Entrar</button>
+    //                 `;
+    //                 todoList.appendChild(taskElement);
+    //             });
+    //         });
+    // };
 
       //Função pra entrar na tarefa
     window.enterTask = (titulo)=>{
+        // alert("Entrei na função")
+        titulo = decodeURIComponent(titulo)
+        console.log("safeTitle: ",titulo)
         list_nome = localStorage.getItem("nome_lista")
         list_nome_criador = localStorage.getItem("nome_criador")
         console.log("Entrar na tarefa:", titulo,list_nome, list_nome_criador);
@@ -56,7 +60,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     
 
-
+    const loadTasks = () => {
+        fetch(`/listas/${encodeURIComponent(lista)}/${encodeURIComponent(criador)}/tarefas`)
+            .then(response => response.json())
+            .then(tasks => {
+                todoList.innerHTML = '';
+                tasks.forEach(task => {
+                    const safeTitle = encodeURIComponent(task.titulo); // Codifica o título
+                    const taskElement = document.createElement('div');
+                    taskElement.innerHTML = `
+                        <span>Título: ${task.titulo} Criador: ${task.nome_criador_tarefa}</span>
+                        <button class="enter-task-button" data-title="${safeTitle}">Entrar</button>
+                        <button class="delete-task-button" data-title="${safeTitle}">Excluir</button>
+                        <button class="view-task-button" data-title="${safeTitle}">Verificar</button>
+                    `;
+                    todoList.appendChild(taskElement);
+                });
+    
+                // Adiciona os event listeners
+                document.querySelectorAll('.enter-task-button').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const titulo = event.target.getAttribute('data-title');
+                        enterTask(titulo);
+                    });
+                });
+    
+                document.querySelectorAll('.delete-task-button').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const titulo = event.target.getAttribute('data-title');
+                        deleteTask(titulo);
+                    });
+                });
+    
+                document.querySelectorAll('.view-task-button').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const titulo = event.target.getAttribute('data-title');
+                        viewTask(titulo);
+                    });
+                });
+            });
+    };
+    
 
 
 

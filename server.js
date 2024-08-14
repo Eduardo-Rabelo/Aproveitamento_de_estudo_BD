@@ -529,6 +529,7 @@ app.get('/tarefas/:titulo_tarefa/:nome_lista/:nome_criador', (req, res) => {
 app.put('/tarefas/:titulo/:nome_lista/:nome_criador', (req, res) => {
     const { titulo, nome_lista, nome_criador } = req.params;
     const { novo_titulo, descricao, data_vencimento, verifica_conclusao } = req.body;
+    console.log("titulo: ",titulo,"\nlista: ",nome_lista,"\ncriador_lista: ",nome_criador,"\nnovo_titulo: ",novo_titulo,"\ndescricao: ",descricao,"\ndata_vencimento: ", data_vencimento,"\nverifica_conclusão: ", verifica_conclusao)
     console.log("novo_titulo: ",novo_titulo)
     // console.log("descricao: ",descricao)
     // console.log("data_vencimento: ",data_vencimento)

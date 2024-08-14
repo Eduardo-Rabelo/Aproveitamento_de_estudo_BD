@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newCompletedInput = document.getElementById('new-completed');
     const saveCompletedButton = document.getElementById('save-completed-button');
 
-    fetch(`/tarefas/${titulo}/${lista}/${criador_lista}`)
+    fetch(`/tarefas/${encodeURI(titulo)}/${encodeURI(lista)}/${encodeURI(criador_lista)}`)
         .then(response => response.json())
         .then(task => {
             taskTitle.textContent = task.titulo;
@@ -136,7 +136,8 @@ goBackButton.addEventListener('click',() => {
 
 
 function updateTaskAttribute(titulo, lista, criador_lista, updates, callback) {
-    fetch(`/tarefas/${titulo}/${lista}/${criador_lista}`, {
+    console.log("titulo: ",titulo,"\nlista: ",lista,"\ncriador_lista: ",criador_lista,"\nupdates: ",updates,"\ncallback: ",callback)
+    fetch(`/tarefas/${encodeURIComponent(titulo)}/${encodeURIComponent(lista)}/${encodeURIComponent(criador_lista)}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json'
@@ -144,6 +145,7 @@ function updateTaskAttribute(titulo, lista, criador_lista, updates, callback) {
         body: JSON.stringify(updates)
     })
     .then(response => {
+        console.log("response: ",response)
         if (!response.ok) {
             throw new Error('Erro ao atualizar a tarefa.');
         }
