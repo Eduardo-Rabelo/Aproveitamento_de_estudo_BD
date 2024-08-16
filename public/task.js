@@ -72,11 +72,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const newTitle = newTitleInput.value;
         localStorage.setItem("titulo",newTitle);
         console.log("newTitleInput: ",newTitle);
+        console.log("Título pré update: ",titulo)
         updateTaskAttribute(titulo, lista, criador_lista, { novo_titulo: newTitle }, () => {
             taskTitle.textContent = newTitle;
             newTitleInput.style.display = 'none';
             saveTitleButton.style.display = 'none';
         });
+        titulo = newTitle
+        console.log("\n\n\n\n\nTítulo pós update: ",titulo)
     });
 
     editDescriptionButton.addEventListener('click', () => {

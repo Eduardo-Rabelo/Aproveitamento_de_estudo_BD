@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(tasks => {
                 todoList.innerHTML = '';
                 tasks.forEach(task => {
-                    const safeTitle = encodeURIComponent(task.titulo); // Codifica o título
+                    const safeTitle = encodeURIComponent(task.titulo); 
                     const taskElement = document.createElement('div');
                     taskElement.innerHTML = `
                         <span>Título: ${task.titulo} Criador: ${task.nome_criador_tarefa}</span>

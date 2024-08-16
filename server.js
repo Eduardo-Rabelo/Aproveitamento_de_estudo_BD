@@ -215,18 +215,19 @@ app.get('/listas/:nome_lista/:nome_criador/tarefas', (req, res) => {
 
 
 // Rota para atualizar a descrição de uma tarefa
-app.put('/tarefas/:id_tarefa', (req, res) => {
-    const { id_tarefa } = req.params;
-    const { descricao } = req.body;
-    connection.query(
-        'UPDATE tarefa SET descricao = ? WHERE id_tarefa = ?',
-        [descricao, id_tarefa],
-        (err, results) => {
-            if (err) throw err;
-            res.json(results);
-        }
-    );
-});
+// app.put('/tarefas/:id_tarefa', (req, res) => {
+//     console.log("entrei no id_tarefa")
+//     const { id_tarefa } = req.params;
+//     const { descricao } = req.body;
+//     connection.query(
+//         'UPDATE tarefa SET descricao = ? WHERE id_tarefa = ?',
+//         [descricao, id_tarefa],
+//         (err, results) => {
+//             if (err) throw err;
+//             res.json(results);
+//         }
+//     );
+// });
 
 
 
@@ -544,6 +545,7 @@ app.put('/tarefas/:titulo/:nome_lista/:nome_criador', (req, res) => {
         queryParams.push(novo_titulo);
     }
     if (descricao !== undefined) {
+        console.log("entrei pra mudar a descrição, a nova é: ",descricao)
         queryParts.push('descricao = ?');
         queryParams.push(descricao);
     }
@@ -566,7 +568,8 @@ app.put('/tarefas/:titulo/:nome_lista/:nome_criador', (req, res) => {
 
     // Constrói a consulta SQL
     const query = `UPDATE tarefa SET ${queryParts.join(', ')} WHERE titulo = ? AND nome_lista = ? AND nome_criador_lista = ?`;
-
+    console.log("query: ",query)
+    console.log("queryParams: ",queryParams)
     connection.query(query, queryParams, (err, results) => {
         if (err) {
             console.error('Erro ao atualizar a tarefa:', err);
@@ -574,6 +577,8 @@ app.put('/tarefas/:titulo/:nome_lista/:nome_criador', (req, res) => {
         }
         res.json({ message: 'Tarefa atualizada com sucesso', results });
     });
+    
+    // localStorage.setItem("titulo",titulo)
 });
 
 
