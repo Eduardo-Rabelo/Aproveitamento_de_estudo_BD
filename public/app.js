@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 lists.forEach(list => {
                     const listElement = document.createElement('div');
                     listElement.innerHTML = `
-                        <span>Nome: ${list.nome}        Criador: ${list.nome_criador}</span>
+                        <span>Nome: ${list.nome} Criador: ${list.nome_criador} ultima_modificação: ${list.data_mod} ultimo_a_modificar: ${list.responsavel_mod}</span>
                         <button onclick="deleteList('${list.nome}', '${list.nome_criador}')">Excluir</button>                
                         <button onclick="enterList('${list.nome}', '${list.nome_criador}')">entrar</button>
 

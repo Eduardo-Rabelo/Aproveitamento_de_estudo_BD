@@ -1,3 +1,4 @@
+const moment = require('moment')
 const express = require('express');
 const mysql = require('mysql2');
 // const mysql = require('mysql2/promise'); // Importe a versão de promessas
@@ -418,20 +419,69 @@ app.get('/tarefa', isAuthenticated, (req, res) => {
 
 
 // Rota para criar uma nova tarefa
-app.post('/tarefas', isAuthenticated, (req, res) => {
-    const { nome_criador_lista,nome_lista, titulo, descricao,data_vencimento} = req.body;
-    const nome_criador_tarefa = req.session.user;
-    console.log("Título: ",titulo," \n\n\n")
-    connection.query(
-        'INSERT INTO tarefa (nome_lista, nome_criador_lista, titulo, descricao, data_cadastro, verifica_conclusao, data_vencimento,nome_criador_tarefa) VALUES (?, ?, ?, ?, NOW(), False, ?, ?)',
-        [nome_lista, nome_criador_lista, titulo, descricao,data_vencimento,nome_criador_tarefa],
-        (err, results) => {
-            if (err) throw err;
-            res.status(201).json({ id_tarefa: results.insertId });
-        }
-    );
-});
+// app.post('/tarefas', isAuthenticated, (req, res) => {
+//     const { nome_criador_lista,nome_lista, titulo, descricao,data_vencimento} = req.body;
+//     const nome_criador_tarefa = req.session.user;
+//     console.log("Título: ",titulo," \n\n\n")
 
+//     const responsavel = req.session.user
+//     let queryParamsLista = []
+//     currentTime = moment().format('YYYY-MM-DD HH:mm:ss')
+//     console.log("date.now: ",currentTime)
+
+//     queryParamsLista.push(currentTime,responsavel,nome_lista,nome_criador_lista)
+//     const queryLista = `UPDATE lista SET data_mod = ?, responsavel_mod = ? WHERE nome = ? AND nome_criador = ?`
+
+//     connection.query(
+//         'INSERT INTO tarefa (nome_lista, nome_criador_lista, titulo, descricao, data_cadastro, verifica_conclusao, data_vencimento,nome_criador_tarefa) VALUES (?, ?, ?, ?, NOW(), False, ?, ?)',
+//         [nome_lista, nome_criador_lista, titulo, descricao,data_vencimento,nome_criador_tarefa],
+//         (err, results) => {
+//             if (err) throw err;
+//             res.status(201).json({ id_tarefa: results.insertId });
+
+//         connection.query(queryLista, queryParamsLista, (err, results) => {
+//                     if (err) {
+//                         console.error('Erro ao atualizar a lista pela tarefa:', err);
+//                         return res.status(500).json({ error: 'Erro ao atualizar a lista pela tarefa' });
+//                     }
+//                     res.json({ message: 'Lista pela Tarefa atualizada com sucesso', results });
+//                 });
+//         }
+//     );
+// });
+
+app.post('/tarefas', isAuthenticated, (req, res) => {
+    const { nome_criador_lista, nome_lista, titulo, descricao, data_vencimento } = req.body;
+    const nome_criador_tarefa = req.session.user;
+    const responsavel = req.session.user;
+    const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
+
+    const queryParamsLista = [currentTime, responsavel, nome_lista, nome_criador_lista];
+    const queryLista = `UPDATE lista SET data_mod = ?, responsavel_mod = ? WHERE nome = ? AND nome_criador = ?`;
+
+    // Inserção da tarefa
+    const queryInsertTask = 'INSERT INTO tarefa (nome_lista, nome_criador_lista, titulo, descricao, data_cadastro, verifica_conclusao, data_vencimento, nome_criador_tarefa) VALUES (?, ?, ?, ?, NOW(), False, ?, ?)';
+    const queryInsertParams = [nome_lista, nome_criador_lista, titulo, descricao, data_vencimento, nome_criador_tarefa];
+
+    // Executa ambas as queries em sequência e retorna uma única resposta
+    connection.query(queryInsertTask, queryInsertParams, (err, results) => {
+        if (err) {
+            console.error('Erro ao inserir a tarefa:', err);
+            return res.status(500).json({ error: 'Erro ao criar a tarefa' });
+        }
+
+        // Após a tarefa ser inserida, atualiza a lista
+        connection.query(queryLista, queryParamsLista, (err, updateResults) => {
+            if (err) {
+                console.error('Erro ao atualizar a lista pela tarefa:', err);
+                return res.status(500).json({ error: 'Erro ao atualizar a lista pela tarefa' });
+            }
+
+            // Resposta final ao cliente
+            res.status(201).json({ id_tarefa: results.insertId, message: 'Tarefa e lista atualizadas com sucesso' });
+        });
+    });
+});
 
 
 
@@ -528,6 +578,8 @@ app.get('/tarefas/:titulo_tarefa/:nome_lista/:nome_criador', (req, res) => {
 
 // Rota para atualizar tarefa
 app.put('/tarefas/:titulo/:nome_lista/:nome_criador', (req, res) => {
+    const responsavel = req.session.user
+    console.log("Responsável: ",responsavel)
     const { titulo, nome_lista, nome_criador } = req.params;
     const { novo_titulo, descricao, data_vencimento, verifica_conclusao } = req.body;
     console.log("titulo: ",titulo,"\nlista: ",nome_lista,"\ncriador_lista: ",nome_criador,"\nnovo_titulo: ",novo_titulo,"\ndescricao: ",descricao,"\ndata_vencimento: ", data_vencimento,"\nverifica_conclusão: ", verifica_conclusao)
@@ -567,18 +619,37 @@ app.put('/tarefas/:titulo/:nome_lista/:nome_criador', (req, res) => {
     queryParams.push(titulo, nome_lista, nome_criador);
 
     // Constrói a consulta SQL
+    let queryParamsLista = []
+    currentTime = moment().format('YYYY-MM-DD HH:mm:ss')
+    console.log("date.now: ",currentTime)
+
+    queryParamsLista.push(currentTime,responsavel,nome_lista,nome_criador)
+
+
+    const queryLista = `UPDATE lista SET data_mod = ?, responsavel_mod = ? WHERE nome = ? AND nome_criador = ? `
+
     const query = `UPDATE tarefa SET ${queryParts.join(', ')} WHERE titulo = ? AND nome_lista = ? AND nome_criador_lista = ?`;
     console.log("query: ",query)
     console.log("queryParams: ",queryParams)
+
     connection.query(query, queryParams, (err, results) => {
         if (err) {
             console.error('Erro ao atualizar a tarefa:', err);
             return res.status(500).json({ error: 'Erro ao atualizar a tarefa' });
         }
-        res.json({ message: 'Tarefa atualizada com sucesso', results });
+
+        connection.query(queryLista, queryParamsLista, (err, results) => {
+            if (err) {
+                console.error('Erro ao atualizar a lista pela tarefa:', err);
+                return res.status(500).json({ error: 'Erro ao atualizar a lista pela tarefa' });
+            }
+            res.json({ message: 'Lista pela Tarefa atualizada com sucesso', results });
+        });
     });
+
     
-    // localStorage.setItem("titulo",titulo)
+    
+   
 });
 
 

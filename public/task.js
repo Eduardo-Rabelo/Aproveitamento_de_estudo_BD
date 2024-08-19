@@ -139,6 +139,7 @@ goBackButton.addEventListener('click',() => {
 
 
 function updateTaskAttribute(titulo, lista, criador_lista, updates, callback) {
+    
     console.log("titulo: ",titulo,"\nlista: ",lista,"\ncriador_lista: ",criador_lista,"\nupdates: ",updates,"\ncallback: ",callback)
     fetch(`/tarefas/${encodeURIComponent(titulo)}/${encodeURIComponent(lista)}/${encodeURIComponent(criador_lista)}`, {
         method: 'PUT',
