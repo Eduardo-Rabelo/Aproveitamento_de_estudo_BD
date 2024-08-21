@@ -17,9 +17,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log("safeNome: ",safeNome);
                     listElement.innerHTML = `
                         <span>Nome: ${list.nome} Criador: ${list.nome_criador} ultima_modificação: ${list.data_mod} ultimo_a_modificar: ${list.responsavel_mod}</span>
+<<<<<<< HEAD
                         <button class = "delete-list-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Excluir</button> 
                         <button class = "enter-list-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Entrar</button>
                         <button class = "edit-list-title-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Mudar nome</button>
+=======
+                        <button onclick="deleteList('${list.nome}', '${list.nome_criador}')">Excluir</button>                
+                        <button onclick="enterList('${list.nome}', '${list.nome_criador}')">entrar</button>
+>>>>>>> 69d270f4c4b92d1a665fd4998fc8d5aa8dd22022
 
                     `;
                     // <button onclick="deleteList('${list.nome}', '${list.nome_criador}')">Excluir</button>
