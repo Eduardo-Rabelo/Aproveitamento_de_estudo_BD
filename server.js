@@ -60,7 +60,7 @@ app.get('/listas/:username', isAuthenticated, (req, res) => {
     SELECT l.*
     FROM lista_usuario AS lu
     LEFT JOIN lista AS l ON l.nome = lu.nome_lista AND l.nome_criador = lu.nome_criador_lista
-    WHERE lu.nome_usuario = ?
+    WHERE lu.nome_usuario = ? AND lu.validada = TRUE
 `   ;
 
 // Execução da consulta SQL
@@ -97,7 +97,7 @@ app.delete('/listas/:nome_lista/:nome_criador_lista', (req, res) => {
     const { nome_lista, nome_criador_lista } = req.params;
 
     // Execute a primeira consulta
-    connection.query('DELETE FROM lista_usuario WHERE nome_lista = ? AND nome_criador_lista = ?;', [nome_lista, nome_criador_lista], (err) => {
+    connection.query('DELETE FROM lista_usuario WHERE nome_lista = ? AND nome_criador_lista = ? AND validada = TRUE;', [nome_lista, nome_criador_lista], (err) => {
         if (err) {
             console.error('Erro ao excluir lista_usuario:', err);
             res.status(500).send('Erro ao excluir lista_usuario.');
@@ -129,39 +129,6 @@ app.delete('/listas/:nome_lista/:nome_criador_lista', (req, res) => {
 
 
 
-
-//Rota para deletar uma lista
-// app.delete('/listas/:nome_lista/:nome_criador_lista', (req, res) => {
-//     const { nome_lista, nome_criador_lista } = req.params;
-
-//         // await connection.query('DELETE FROM lista_usuario WHERE nome_lista = ? AND nome_criador_lista = ?;', [nome_lista, nome_criador_lista]);
-//         connection.query('DELETE FROM lista_usuario WHERE nome_lista = ? AND nome_criador_lista = ?;', [nome_lista, nome_criador_lista], (err) => {
-//             if (err) {
-//                 console.error('Erro ao excluir lista_usuario:', err);
-//                 res.status(500).send('Erro ao excluir lista_usuario.');
-//                 return;
-//             }
-
-//         connection.query('DELETE FROM tarefa WHERE nome_lista = ? AND nome_criador_lista = ?;', [nome_lista, nome_criador_lista], (err) =>{
-//             if(err){
-//                 console.error("Erro ao excluir tarefa",err);
-//                 res.status(500).send("Erro ao excluir tarefa")
-//                 return;
-//             }
-        
-
-//         connection.query('DELETE FROM lista WHERE nome = ? AND nome_criador = ?', [nome_lista, nome_criador_lista], (err) =>{
-//             if(err){
-//                 console.error('Erro ao excluir lista:', err);
-//                 res.status(500).send('Erro ao excluir lista.');
-//                 return;
-//             }
-
-//             res.status(204).send();
-//         });
-//         });
-//         });
-//     });
 
 
 
@@ -241,9 +208,41 @@ app.patch('/tarefas/:nome_tarefa/existe', (req, res) => {
 
 
 
+//Rotas para convidar algém
+app.post('/convites/:nome_convidado/:nome_lista/:nome_criador_lista',(req,res)=>{
+    console.log("Ao menos entrei no servidor. ")
+    const {nome_convidado,nome_lista,nome_criador_lista} = req.params;
+    console.log("nome: ", nome_convidado,"lista :",nome_lista,"Criador:",nome_criador_lista)
+    
+    connection.query(
+        `INSERT INTO lista_usuario VALUES (?,?,?,FALSE)`,
+        [nome_convidado,nome_lista,nome_criador_lista],
+        (err, results) => {
+            if (err) throw err;
+            res.json(results);
+        }
+    );
+})
 
-
-
+//Rota pra ver se o convidado existe
+app.get('/convites/:nome_convidado/existe', (req, res) => {
+    const { nome_convidado } = req.params;
+    const usuario = req.session.user;
+    if(nome_convidado == usuario){
+        console.log("Usuario: ",usuario)
+        console.log("Convidado: ",nome_convidado)
+        res.json(false);
+    }
+    connection.query(
+        'SELECT COUNT(*) as count FROM usuario WHERE nome_usuario = ?',
+        [nome_convidado],
+        (err, results) => {
+            if (err) throw err;
+            const count = results[0].count;
+            res.json({ exists: count > 0 });
+        }
+    );
+});
 
 
 
@@ -327,7 +326,10 @@ app.delete('/tarefas/:titulo_tarefa', (req, res) => {
 
 
 
-
+// Rota para a página de convites
+app.get('/invites', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'invites.html'));
+});
 
 
 
@@ -335,6 +337,7 @@ app.delete('/tarefas/:titulo_tarefa', (req, res) => {
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
+
 
 // Rota para autenticação
 app.post('/login', (req, res) => {
@@ -537,9 +540,7 @@ app.get('/listas/:nome_lista/existe', (req, res) => {
 app.put('/listas/:nome/:nome_criador/:novo_nome', (req, res) => {
     
     const {nome,nome_criador,novo_nome} = req.params;
-    // nome = decodeURIComponent(nome);
-    // nome_criador = decodeURIComponent(nome_criador);
-    // novo_nome = decodeURIComponent(novo_nome);
+
 
     console.log("Entrei. Nome: ",nome, " Criador: ",nome_criador);
     console.log("entrei no mudar nome da tarefa, nome:",nome," Criador: ",nome_criador,"Para: ",novo_nome);
@@ -567,7 +568,7 @@ app.post('/listas/:username', isAuthenticated, (req, res) => {
         [nome, username , username]
     );
     connection.query(
-        'INSERT INTO lista_usuario (nome_usuario, nome_lista, nome_criador_lista ) VALUES (?, ?, ?)',
+        'INSERT INTO lista_usuario (nome_usuario, nome_lista, nome_criador_lista,validada ) VALUES (?, ?, ?,TRUE)',
         [username,nome, username],
         (err, results) => {
             if (err) throw err;
@@ -579,9 +580,7 @@ app.post('/listas/:username', isAuthenticated, (req, res) => {
 // Rota para obter os detalhes de uma tarefa específica
 app.get('/tarefas/:titulo_tarefa/:nome_lista/:nome_criador', (req, res) => {
     const { titulo_tarefa, nome_lista, nome_criador } = req.params;
-    // titulo_tarefa = decodeURIComponent(titulo_tarefa);
-    // nome_criador = decodeURIComponent(nome_criador)
-    // nome_lista = decodeURIComponent(nome_lista)
+    
     console.log("Título-tarefa: ",titulo_tarefa)
     console.log("nome_criador: ",nome_criador)
     console.log("nome_lista: ",nome_lista)
@@ -767,66 +766,6 @@ app.put('/tarefas/:titulo/:nome_lista/:nome_criador', (req, res) => {
 
 
 
-// ('/listas/:username', isAuthenticated, (req, res) => {
-//     const username = req.session.user;
-
-//     const sqlQuery = `
-//     SELECT l.*
-//     FROM lista_usuario AS lu
-//     LEFT JOIN lista AS l ON l.nome = lu.nome_lista AND l.nome_criador = lu.nome_criador_lista
-//     WHERE lu.nome_usuario = ?
-// `   ;
-
-// // Execução da consulta SQL
-//     connection.query(sqlQuery, [username], (err, results) => {
-//         if (err) {
-//             console.error('Erro ao recuperar listas do usuário:', err);
-//             res.status(500).json({ success: false, message: 'Erro ao recuperar listas do usuário' });
-//             return;
-//         }
-//         res.json(results);
-//     });
-// });
-
-
-// app.post('/addTask', isAuthenticated, (req, res) => {
-//     const { taskTitle, taskDescription } = req.body;
-//     const username = req.session.user;
-
-//     const nome_lista = 'lista1'; // Substitua pelo nome_lista apropriado
-//     const nome_criador_lista = username;
-
-//     connection.query(
-//         'INSERT INTO tarefa (nome_lista, nome_criador_lista, titulo, descricao, data_cadastro, verifica_conclusao) VALUES (?, ?, ?, ?, NOW(), false)',
-//         [nome_lista, nome_criador_lista, taskTitle, taskDescription],
-//         (err, results) => {
-//             if (err) {
-//                 console.error('Erro ao adicionar tarefa: ', err);
-//                 res.status(500).json({ success: false, message: 'Erro ao adicionar tarefa' });
-//                 return;
-//             }
-//             res.json({ success: true });
-//         }
-//     );
-// });
-
-
-// app.get('/getLists', isAuthenticated, (req, res) => {
-//     const username = req.session.user;
-
-//     connection.query(
-//         'SELECT nome FROM lista WHERE nome_criador = ?',
-//         [username],
-//         (err, results) => {
-//             if (err) {
-//                 console.error('Erro ao recuperar listas do usuário:', err);
-//                 res.status(500).json({ success: false, message: 'Erro ao recuperar listas do usuário' });
-//                 return;
-//             }
-//             res.json(results);
-//         }
-//     );
-// });
 
 
 

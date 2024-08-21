@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Função para carregar tarefas
     const loadLists = () => {
-        fetch('/listas/:username') // substitua 'lista1' pelo nome da lista desejada
+        fetch('/listas/:username') 
             .then(response => response.json())
             .then(lists => {
                 list_of_lists.innerHTML = '';
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     button.addEventListener('click', (event) => {
                         const nome = event.target.getAttribute('x');
                         const nome_criador = event.target.getAttribute('y');
-                        const novo_nome = prompt("Novo Nome:");
+                        const novo_nome = encodeURIComponent(prompt("Novo Nome:"));
                         
                         if(novo_nome === null || novo_nome.trim() === ""){
                             alert("Nome Inválido")
@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         };
                         
                         console.log("nome da lista cujo nome vou mudar:: ",nome,"Criador: ",nome_criador,"NovoNome: ",novo_nome)
+
                         editListTitle(nome,nome_criador,novo_nome);
                     });
                 });
@@ -159,6 +160,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const goBackButton = document.getElementById("backButton");
         goBackButton.addEventListener('click',() => {
         window.location.href = '/login'     
+    
     })
+
+    const inviteButton = document.getElementById("inviteButton");
+        inviteButton.addEventListener('click',() => {
+        window.location.href = '/invites'     
+    
+    })
+    
     // loadTasks();
 });
