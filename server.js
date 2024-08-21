@@ -579,6 +579,13 @@ app.post('/listas/:username', isAuthenticated, (req, res) => {
 // Rota para obter os detalhes de uma tarefa específica
 app.get('/tarefas/:titulo_tarefa/:nome_lista/:nome_criador', (req, res) => {
     const { titulo_tarefa, nome_lista, nome_criador } = req.params;
+    // titulo_tarefa = decodeURIComponent(titulo_tarefa);
+    // nome_criador = decodeURIComponent(nome_criador)
+    // nome_lista = decodeURIComponent(nome_lista)
+    console.log("Título-tarefa: ",titulo_tarefa)
+    console.log("nome_criador: ",nome_criador)
+    console.log("nome_lista: ",nome_lista)
+
     connection.query('SELECT * FROM tarefa WHERE titulo = ? AND nome_lista = ? AND nome_criador_lista = ?', [titulo_tarefa, nome_lista, nome_criador], (err, results) => {
         if (err) throw err;
         res.json(results[0]);

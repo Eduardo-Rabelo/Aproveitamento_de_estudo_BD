@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(task => {
             taskTitle.textContent = task.titulo;
             taskDescription.textContent = task.descricao;
-            taskDueDate.textContent = task.data_vencimento;
+            taskDueDate.textContent = moment(task.data_vencimento).format('YYYY-MM-DD HH:mm:ss');
             taskCompleted.textContent = task.verifica_conclusao ? 'Sim' : 'Não';
         });
 

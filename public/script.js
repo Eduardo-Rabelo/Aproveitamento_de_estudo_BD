@@ -155,7 +155,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //Funçao pra ver Tarefa
     window.viewTask = (titulo_tarefa) => {
-        console.log("título_tarefa: ",titulo_tarefa)
+        titulo_tarefa = decodeURIComponent(titulo_tarefa);
+        console.log("título_tarefa: ",titulo_tarefa);
         const lista = localStorage.getItem("nome_lista");
         const criador = localStorage.getItem("nome_criador");
         fetch(`/tarefas/${encodeURIComponent(titulo_tarefa)}/${encodeURIComponent(lista)}/${encodeURIComponent(criador)}`)
@@ -167,9 +168,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h3>Detalhes da Tarefa</h3>
                         <p><strong>Título:</strong> ${task.titulo}</p>
                         <p><strong>Descrição:</strong> ${task.descricao}</p>
-                        <p><strong>Data de Cadastro:</strong> ${task.data_cadastro}</p>
-                        <p><strong>Data de Vencimento:</strong> ${task.data_vencimento}</p>
-                        <p><strong>Concluída:</strong> ${task.verifica_conclusao}</p>
+                        <p><strong>Data de Cadastro:</strong> ${moment(task.data_cadastro).format('YYYY-MM-DD HH:mm:ss')}</p>
+                        <p><strong>Data de Vencimento:</strong> ${moment(task.data_vencimento).format('YYYY-MM-DD HH:mm:ss')}</p>
+                        <p><strong>Concluída:</strong> ${task.verifica_conclusao ? "Sim":"Não"}</p>
                     </div>
                 `;
                 console.log("Data Cadastro: ",task.data_cadastro)

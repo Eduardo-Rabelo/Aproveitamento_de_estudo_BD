@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded', () => {
     const list_of_lists = document.getElementById('lists');
     const newListForm = document.getElementById('new-list-form');
@@ -13,18 +14,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     const listElement = document.createElement('div');
                     const safeNome = encodeURIComponent(list.nome)
                     const safeNomeCriadorLista = encodeURIComponent(list.nome_criador)
+                    const data_mod = moment(list.data_mod).format('YYYY-MM-DD HH:mm:ss'); 
+                    console.log("dataMod: ",data_mod)
                     console.log("safeNome: ",safeNome);
                     console.log("safeNome: ",safeNome);
                     listElement.innerHTML = `
-                        <span>Nome: ${list.nome} Criador: ${list.nome_criador} ultima_modificação: ${list.data_mod} ultimo_a_modificar: ${list.responsavel_mod}</span>
-<<<<<<< HEAD
+                        <span>Nome: ${list.nome} Criador: ${list.nome_criador} ultima_modificação: ${data_mod} ultimo_a_modificar: ${list.responsavel_mod}</span>
                         <button class = "delete-list-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Excluir</button> 
                         <button class = "enter-list-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Entrar</button>
                         <button class = "edit-list-title-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Mudar nome</button>
-=======
-                        <button onclick="deleteList('${list.nome}', '${list.nome_criador}')">Excluir</button>                
-                        <button onclick="enterList('${list.nome}', '${list.nome_criador}')">entrar</button>
->>>>>>> 69d270f4c4b92d1a665fd4998fc8d5aa8dd22022
 
                     `;
                     // <button onclick="deleteList('${list.nome}', '${list.nome_criador}')">Excluir</button>
@@ -81,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = '/index';
     }
 
-    //Função pra entrar na lista
+    //Função pra editar nome da lista
     window.editListTitle = (list_nome,list_nome_criador,novo_nome)=>{
         list_nome = decodeURIComponent(list_nome)
         list_nome_criador = decodeURIComponent(list_nome_criador)
@@ -115,6 +113,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.exists) {
                 alert('Este usuário já criou uma lista com este nome');
                 return;
+            }
+            if(name === null || name.trim() === ""){
+                alert("Nome Inválido")
+                return
             }
 
             await fetch(`/listas/:username`, {
