@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const criador = localStorage.getItem("nome_criador")
     // const nome_criador_lista = localStorage.getItem("nome_criador_lista")
 
-
+    console.log("Entrei na lista: ",lista," Criador: ",criador)
 
     // Função para deletar uma tarefa
     window.deleteTask = (titulo_tarefa) => {
@@ -25,27 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // // Função para carregar tarefas
-    // const loadTasks = () => {
-    //     fetch(`/listas/${lista}/${criador}/tarefas`) // substitua 'lista1' pelo nome da lista desejada
-    //         .then(response => response.json())
-    //         .then(tasks => {
-    //             todoList.innerHTML = '';
-    //             tasks.forEach(task => {
-    //                 const safeTitle =  encodeURIComponent(task.titulo); //JSON.stringify(task.titulo);
-    //                 const taskElement = document.createElement('div');
-    //                 // console.log("oi")
-    //                 taskElement.innerHTML = `
-    //                     <span>Título:${task.titulo} Criador:${task.nome_criador_tarefa}</span>
-    //                     <button onclick="deleteTask('${task.titulo}')">Excluir</button>
-    //                     <button onclick="viewTask('${task.titulo}')">Verificar</button>
-    //                     <button onclick="enterTask('${safeTitle}')">Entrar</button>
-    //                 `;
-    //                 todoList.appendChild(taskElement);
-    //             });
-    //         });
-    // };
 
+  
       //Função pra entrar na tarefa
     window.enterTask = (titulo)=>{
         // alert("Entrei na função")
@@ -59,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     
-
+    // Função para carregar tarefas
     const loadTasks = () => {
         fetch(`/listas/${encodeURIComponent(lista)}/${encodeURIComponent(criador)}/tarefas`)
             .then(response => response.json())
@@ -101,59 +82,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     };
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // // Função para adicionar nova tarefa
-    // newTaskForm.addEventListener('submit', async (e) => {
-    //     e.preventDefault();
-    //     const name = newTaskTitle.value;
-    //     console.log("name : ", name)
-    //     try {
-    //         const response = await fetch(`/listas/${name}/existe`);
-    //         const data = await response.json();
-    //         console.log("DATA: ",data)
-    //         if (data.exists) {
-    //             alert('Este usuário já criou uma lista com este nome');
-    //             return;
-    //         }
-
-    //         await fetch(`/listas/:username`, {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json'
-    //             },
-    //             body: JSON.stringify({
-    //                 nome: name
-    //             })
-    //         });
-
-    //         newListName.value = '';
-    //         loadLists();
-    //     } catch (error) {
-    //         console.error('Erro ao verificar ou criar a lista:', error);
-    //     }
-    // });
-
     //Função para adicionar nova tarefa
     newTaskForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const title = newTaskTitle.value;
+        console.log("title: ",title)
+        if(title === null || title.trim() ===""){
+            alert("Nome inválido")
+            return
+        }
         const description = prompt('Digite a descrição da tarefa:');
         const data_vencimento = prompt('Digite a data de vencimento da tarefa  (YYYY-MM-DD):');
         if (!isValidDate(data_vencimento)) {
@@ -206,19 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     // Função para validar a data
     const isValidDate = (dateString) => {
         const regex = /^\d{4}-\d{2}-\d{2}$/;
@@ -231,9 +155,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     //Funçao pra ver Tarefa
     window.viewTask = (titulo_tarefa) => {
+        console.log("título_tarefa: ",titulo_tarefa)
         const lista = localStorage.getItem("nome_lista");
         const criador = localStorage.getItem("nome_criador");
-        fetch(`/tarefas/${titulo_tarefa}/${lista}/${criador}`)
+        fetch(`/tarefas/${encodeURIComponent(titulo_tarefa)}/${encodeURIComponent(lista)}/${encodeURIComponent(criador)}`)
             .then(response => response.json())
             .then(task => {
                 // Aqui você pode exibir os detalhes da tarefa como desejar
@@ -247,65 +172,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p><strong>Concluída:</strong> ${task.verifica_conclusao}</p>
                     </div>
                 `;
+                console.log("Data Cadastro: ",task.data_cadastro)
                 // Exibir os detalhes da tarefa, por exemplo, em um modal ou na própria página
                 document.getElementById('task-details').innerHTML = taskDetails;
             });
     };
-
-   
-
-
-// document.addEventListener('DOMContentLoaded', () => {
-//     const todoList = document.getElementById('todo-list');
-//     const newTaskForm = document.getElementById('new-task-form');
-//     const newTaskTitle = document.getElementById('new-task-title');
-//     const lista = localStorage.getItem("nome_lista");
-//     const criador = localStorage.getItem("nome_criador");
-
-//     // Função para carregar tarefas
-//     const loadTasks = () => {
-//         fetch(`/listas/${lista}/${criador}/tarefas`) // Correção da string template
-//             .then(response => response.json())
-//             .then(tasks => {
-//                 todoList.innerHTML = '';
-//                 tasks.forEach(task => {
-//                     const taskElement = document.createElement('div');
-//                     taskElement.innerHTML = `
-//                         <span>${task.titulo}: ${task.descricao}</span>
-//                         <button onclick="deleteTask('${task.titulo}')">Excluir</button>
-//                     `;
-//                     todoList.appendChild(taskElement);
-//                 });
-//             });
-//     };
-
-//     // Função para adicionar nova tarefa
-//     newTaskForm.addEventListener('submit', (e) => {
-//         e.preventDefault();
-//         const title = newTaskTitle.value;
-//         const description = prompt('Digite a descrição da tarefa:');
-//         const data_vencimento = prompt('Digite a data de vencimento da tarefa:');
-//         fetch('/tarefas', {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json'
-//             },
-//             body: JSON.stringify({
-//                 nome_lista: lista, 
-//                 titulo: title,
-//                 descricao: description,
-//                 verifica_conclusao: false, // Adicionado se necessário
-//                 data_vencimento: data_vencimento
-//             })
-//         }).then(() => {
-//             newTaskTitle.value = '';
-//             loadTasks();
-//         });
-//     });
-
-
-
-    
 
     // Carregar tarefas ao carregar a página
     loadTasks();

@@ -1,35 +1,9 @@
-// document.addEventListener('DOMContentLoaded', () => {
-//     // const params = new URLSearchParams(window.location.search);
-//     // const nome_lista = localStorage.getItem("nome_lista");
-//     // const nome_criador = localStorage.getItem("nome_criador");
-//     // const titulo = params.get('titulo');
-//     const titulo = localStorage.getItem("titulo")
-//     const criador_lista = localStorage.getItem("nome_criador")
-//     const lista = localStorage.getItem("nome_lista")
-
-//     const taskTitle = document.getElementById('task-title');
-//     const taskDescription = document.getElementById('task-description');
-//     const taskDueDate = document.getElementById('task-due-date');
-//     const taskCompleted = document.getElementById('task-completed');
-
-//     fetch(`/tarefas/${titulo}/${lista}/${criador_lista}`)
-//         .then(response => response.json())
-//         .then(task => {
-//             taskTitle.textContent = task.titulo;
-//             taskDescription.textContent = task.descricao;
-//             taskDueDate.textContent = task.data_vencimento;
-//             taskCompleted.textContent = task.verifica_conclusao ? 'Sim' : 'Não';
-//         });
-    
-
-//         // taskTitle.innerHTML("<h1>TESTE</h1>")
-//     });
-
-
 document.addEventListener('DOMContentLoaded', () => {
     const titulo = localStorage.getItem("titulo");
     const criador_lista = localStorage.getItem("nome_criador");
     const lista = localStorage.getItem("nome_lista");
+
+    console.log("Entrei na tarefa:", titulo,criador_lista, lista);
 
     const taskTitle = document.getElementById('task-title');
     const taskDescription = document.getElementById('task-description');
@@ -52,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newCompletedInput = document.getElementById('new-completed');
     const saveCompletedButton = document.getElementById('save-completed-button');
 
-    fetch(`/tarefas/${encodeURI(titulo)}/${encodeURI(lista)}/${encodeURI(criador_lista)}`)
+    fetch(`/tarefas/${encodeURIComponent(titulo)}/${encodeURIComponent(lista)}/${encodeURIComponent(criador_lista)}`)
         .then(response => response.json())
         .then(task => {
             taskTitle.textContent = task.titulo;
@@ -70,6 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
     saveTitleButton.addEventListener('click', () => {
         
         const newTitle = newTitleInput.value;
+        if(newTitle === null || newTitle.trim() ===""){
+            alert("Nome inválido")
+            return
+        }
         localStorage.setItem("titulo",newTitle);
         console.log("newTitleInput: ",newTitle);
         console.log("Título pré update: ",titulo)
@@ -78,8 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
             newTitleInput.style.display = 'none';
             saveTitleButton.style.display = 'none';
         });
-        titulo = newTitle
-        console.log("\n\n\n\n\nTítulo pós update: ",titulo)
+        window.location.reload();
+        // console.log("\n\n\n\n\nTítulo pós update: ",titulo)
     });
 
     editDescriptionButton.addEventListener('click', () => {
@@ -139,6 +117,7 @@ goBackButton.addEventListener('click',() => {
 
 
 function updateTaskAttribute(titulo, lista, criador_lista, updates, callback) {
+    
     console.log("titulo: ",titulo,"\nlista: ",lista,"\ncriador_lista: ",criador_lista,"\nupdates: ",updates,"\ncallback: ",callback)
     fetch(`/tarefas/${encodeURIComponent(titulo)}/${encodeURIComponent(lista)}/${encodeURIComponent(criador_lista)}`, {
         method: 'PUT',
