@@ -222,20 +222,18 @@ app.post('/convites/:nome_convidado/:nome_lista/:nome_criador_lista',(req,res)=>
             res.json(results);
         }
     );
-})
+});
 
-//Rota pra ver se o convidado existe
-app.get('/convites/:nome_convidado/existe', (req, res) => {
-    const { nome_convidado } = req.params;
-    const usuario = req.session.user;
-    if(nome_convidado == usuario){
-        console.log("Usuario: ",usuario)
-        console.log("Convidado: ",nome_convidado)
-        res.json(false);
-    }
+
+//Rota pra ver se o convidado já está cadastrado na lista
+app.get('/convites/:nome_convidado/:nome_lista/:nome_criador_lista/existe', (req, res) => {
+    console.log("Ao menos entrei no servidor. ")
+    const {nome_convidado,nome_lista,nome_criador_lista} = req.params;
+    console.log("nome: ", nome_convidado,"lista :",nome_lista,"Criador:",nome_criador_lista)
+    
     connection.query(
-        'SELECT COUNT(*) as count FROM usuario WHERE nome_usuario = ?',
-        [nome_convidado],
+        `SELECT COUNT(*) AS count FROM lista_usuario WHERE nome_usuario = ? AND nome_lista = ? AND nome_criador_Lista = ?`,
+        [nome_convidado,nome_lista,nome_criador_lista],
         (err, results) => {
             if (err) throw err;
             const count = results[0].count;
@@ -245,13 +243,88 @@ app.get('/convites/:nome_convidado/existe', (req, res) => {
 });
 
 
+//Rota pra ver se o convidado existe
+app.get('/convites/:nome_convidado/existe', (req, res) => {
+    const { nome_convidado } = req.params;
+    const usuario = req.session.user;
+    if(nome_convidado == usuario){
+        console.log("Usuario: ",usuario)
+        console.log("Convidado: ",nome_convidado)
+        res.json({ exists: false });
+    }else{
+    connection.query(
+        'SELECT COUNT(*) as count FROM usuario WHERE nome_usuario = ?',
+        [nome_convidado],
+        (err, results) => {
+            if (err) throw err;
+            const count = results[0].count;
+            res.json({ exists: count > 0 });
+        }
+    );}
+});
+
+
+// Rota para obter todos os convites do usuário atual
+app.get('/convites/:username', isAuthenticated, (req, res) => {
+    console.log("Entrei no convites/:username")
+    const username = req.session.user;
+
+    const sqlQuery = `
+    SELECT * FROM lista_usuario WHERE nome_usuario = ? AND validada = FALSE
+`   ;
+
+// Execução da consulta SQL
+    connection.query(sqlQuery, [username], (err, results) => {
+        if (err) {
+            console.error('Erro ao recuperar convites do usuário:', err);
+            res.status(500).json({ success: false, message: 'Erro ao recuperar convites do usuário' });
+            return;
+        }
+        res.json(results);
+    });
+});
 
 
 
 
+//método para aceitar convite
+app.put('/convites/aceitar/:nome_lista/:nome_criador_lista',(req,res)=>
+{
+    const {nome_lista,nome_criador_lista} = req.params;
+    const usuario = req.session.user;
+    const sqlQuery = `UPDATE lista_usuario SET validada = TRUE WHERE nome_usuario = ? AND nome_lista = ? AND nome_criador_Lista = ?`;
+    const sqlParams = [usuario,nome_lista,nome_criador_lista]
+
+    connection.query(sqlQuery,sqlParams,(err,results) =>{
+        if (err) {
+            console.error('Erro ao recuperar convites do usuário:', err);
+            res.status(500).json({ success: false, message: 'Erro ao recuperar convites do usuário' });
+            return;
+        }
+        res.json(results);
+    });
 
 
+});
 
+//método para deletar convites
+app.delete('/convites/recusar/:list_nome/:list_nome_criador',(req,res)=>{
+    const {list_nome,list_nome_criador} = req.params;
+    const usuario = req.session.user;
+    console.log("Entrei no DELETE: nome_lista: ",list_nome," User: ",usuario, "Criador_lista: ",list_nome_criador)
+    const sqlQuerry = `DELETE FROM lista_usuario WHERE  nome_usuario = ? AND nome_lista = ? AND nome_criador_lista = ? AND validada = FALSE`;
+    const sqlParams = [usuario,list_nome,list_nome_criador]
+
+    connection.query(sqlQuerry,sqlParams,(err,results)=>{
+        if (err) {
+            console.error('Erro ao deletar convites do usuário:', err);
+            res.status(500).json({ success: false, message: 'Erro ao recuperar convites do usuário' });
+            return;
+        }
+        res.json(results);
+    });
+
+});
 
 
 

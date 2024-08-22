@@ -1,41 +1,76 @@
 
 document.addEventListener('DOMContentLoaded', () => {
-    const nome_lista = localStorage.getItem("nome_lista")
-    const criador_lista = localStorage.getItem("nome_criador")
-    const newInviteButton = document.getElementById('new-invite-button')
+    
+    const list_of_invites = document.getElementById('invites');
 
-    newInviteButton.addEventListener('click',async(e)=>{
-        e.preventDefault();
-        const nome_convidado = prompt("Nome do convidado: ")
-        console.log("Nome_convidado:",nome_convidado)
 
-        try{
-            const response = await fetch(`/convites/${nome_convidado}/existe`);
-            const data = await response.json()
+    const loadInvites = () => {
+        fetch('/convites/:username') 
+            .then(response => response.json())
+            .then(invites => {
+                list_of_invites.innerHTML = '';
+                invites.forEach(invite => {
+                    console.log("INVITE")
+                    const inviteElement = document.createElement('div');
+                    const safeNome = encodeURIComponent(invite.nome_lista)
+                    const safeNomeCriadorLista = encodeURIComponent(invite.nome_criador_lista)
+                    
+                    console.log("safeNome: ",safeNome);
+                    console.log("safeNome: ",safeNomeCriadorLista);
+                    inviteElement.innerHTML = `
+                        <span>Nome da lista: ${invite.nome_lista} Criador da lista: ${invite.nome_criador_lista} </span>
+                        <button class = "delete-invite-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Excluir</button> 
+                        <button class = "accept-invite-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Entrar</button>
 
-            if(data.exists){
-                alert("Usuário existe")
-                console.log("nome_lista:",nome_lista)
-                console.log("Criador_lista:",criador_lista)
-                fetch(`/convites/${encodeURIComponent(nome_convidado)}/${encodeURIComponent(nome_lista)}/${encodeURIComponent(criador_lista)}`,{
-                    method: 'POST',
+                    `;
+                    // <button onclick="deleteinvite('${invite.nome}', '${invite.nome_criador}')">Excluir</button>
+                    list_of_invites.appendChild(inviteElement);
                 });
-            }else{
-                alert("Usuário não existe, ou você está tentando se convidar")
-            }
+
+                document.querySelectorAll('.accept-invite-button').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const nome = event.target.getAttribute('x');
+                        const nome_criador = event.target.getAttribute('y');
+                        console.log("nome da lista do convite: ",nome,"Criador: ",nome_criador)
+                        acceptInvite(nome,nome_criador);
+                        window.location.reload();
+                    });
+                });
+
+                document.querySelectorAll('.delete-invite-button').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const nome = event.target.getAttribute('x');
+                        const nome_criador = event.target.getAttribute('y');
+                        console.log("nome da lista do convite que vou excluir: ",nome,"Criador: ",nome_criador)
+                        deleteInvite(nome,nome_criador);
+                    });
+                });
+
+
+
+
+            });
+    };
+
+    loadInvites();
+
+    //Função pra aceitar o convite
+    window.acceptInvite = (list_nome,list_nome_criador)=>{
         
-        }catch(error){
-            console.error("Erro ao convidar um usuário: ",error)
-        }
+        fetch(`convites/aceitar/${list_nome}/${list_nome_criador}`,{
+            method: 'PUT',
+        })
+        
+    }
 
-    })
-
-
-
-
-
-
-
+    window.deleteInvite = (list_nome,list_nome_criador)=>{
+        
+        fetch(`convites/recusar/${list_nome}/${list_nome_criador}`,{
+            method: 'DELETE',
+        })
+        window.location.reload()
+        
+    }
 
 
 

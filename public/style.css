@@ -29,14 +29,15 @@ button {
 }
 
 
-#lists {
+#lists,#invites {
     margin-top: 20px;
 }
 
-#lists div {
+#lists div,#invites div {
     border: 1px solid #ccc;
     padding: 10px;
     margin: 10px 0;
     display: flex;
     justify-content: space-between;
 }
+
