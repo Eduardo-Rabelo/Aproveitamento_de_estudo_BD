@@ -19,8 +19,8 @@ app.use(session({
 
 const connection =  mysql.createConnection({
     host: 'localhost',
-    user: 'root', // substitua pelo seu usuário do MySQL
-    password: 'q12345q', // substitua pela sua senha do MySQL
+    user: 'root', 
+    password: 'q12345q',
     database: 'Aproveitamento_de_estudos'
 });
 
@@ -75,24 +75,6 @@ app.get('/listas/:username', isAuthenticated, (req, res) => {
 });
 
 //Rota para deletar uma lista
-// app.delete('/listas/:nome_lista/:nome_criador', (req, res) => {
-    
-//     const { nome_lista } = req.params;
-//     const { nome_criador_lista } = req.params;
-//     console.log("Entrou na rota, nome_lista = ",nome_lista,", nome_criador = ", nome_criador_lista)
-//     alert("ENTROU NO SERVER")
-
-//     connection.query('DELETE FROM lista WHERE nome = ? AND nome_criador = ?', [nome_lista, nome_criador_lista], (err, results) => {
-//         if (err) throw err;
-//         res.status(204).send();
-//     });
-// });
-
-
-
-
-// //Rota para deletar uma lista
-
 app.delete('/listas/:nome_lista/:nome_criador_lista', (req, res) => {
     const { nome_lista, nome_criador_lista } = req.params;
 
@@ -128,10 +110,6 @@ app.delete('/listas/:nome_lista/:nome_criador_lista', (req, res) => {
 });
 
 
-
-
-
-
 // Rota para obter todas as tarefas de uma lista
 app.get('/listas/:nome_lista/:nome_criador/tarefas', (req, res) => {
     const { nome_lista } = req.params;
@@ -142,56 +120,10 @@ app.get('/listas/:nome_lista/:nome_criador/tarefas', (req, res) => {
     });
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //Rota pra ver se a tarefa já existe
 app.patch('/tarefas/:nome_tarefa/existe', (req, res) => {
     const { nome_tarefa } = req.params;
     const { criador, lista_nome } = req.body;
-
-    // console.log(nome_tarefa,criador,lista_nome)
-    // console.log('nome_criador_lista:', criador); // Debugging
-    // console.log('nome_lista:', lista_nome); // Debugging
 
     connection.query(
         'SELECT COUNT(*) as count FROM tarefa WHERE nome_criador_lista = ? AND nome_lista = ?  AND titulo = ?',
@@ -203,9 +135,6 @@ app.patch('/tarefas/:nome_tarefa/existe', (req, res) => {
         }
     );
 });
-
-
-
 
 
 //Rotas para convidar algém
@@ -284,9 +213,6 @@ app.get('/convites/:username', isAuthenticated, (req, res) => {
     });
 });
 
-
-
-
 //método para aceitar convite
 app.put('/convites/aceitar/:nome_lista/:nome_criador_lista',(req,res)=>
 {
@@ -326,52 +252,6 @@ app.delete('/convites/recusar/:list_nome/:list_nome_criador',(req,res)=>{
 
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Rota para deletar uma tarefa
-// app.delete('/tarefas/:titulo_tarefa', (req, res) => {
-//     const { titulo_tarefa } = req.params;
-//     const { nome_lista } = 'lista1';
-//     const { nome_criador_lista } = 'user1';
-//     connection.query('DELETE FROM tarefa WHERE nome_lista = ? AND nome_criador_lista = ? and titulo = ?', [nome_lista, nome_criador_lista, titulo_tarefa], (err, results) => {
-//         if (err) throw err;
-//         res.status(204).send();
-//     });
-// });
-
-
 // Rota para deletar uma tarefa
 app.delete('/tarefas/:titulo_tarefa', (req, res) => {
     const { titulo_tarefa } = req.params;
@@ -395,22 +275,15 @@ app.delete('/tarefas/:titulo_tarefa', (req, res) => {
 
 });
 
-
-
-
-
 // Rota para a página de convites
 app.get('/invites', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'invites.html'));
 });
 
-
-
 // Rota para a página de login
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
-
 
 // Rota para autenticação
 app.post('/login', (req, res) => {
@@ -449,8 +322,6 @@ app.get('/app', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'app.html'));
 });
 
-
-
 //Rota pra index  FUNCIONA
 app.get('/index', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -460,56 +331,6 @@ app.get('/index', isAuthenticated, (req, res) => {
 app.get('/tarefa', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'tarefa.html'));
 });
-
-
-// app.get('/tarefas/:nome_lista/:nome_criador/:titulo', isAuthenticated, (req, res) => {
-//     const { nome_lista, nome_criador, titulo } = req.params;
-//     connection.query(
-//         'SELECT * FROM tarefa WHERE nome_lista = ? AND nome_criador_lista = ? AND titulo = ?',
-//         [nome_lista, nome_criador, titulo],
-//         (err, results) => {
-//             if (err) throw err;
-//             if (results.length === 0) {
-//                 res.status(404).send('Tarefa não encontrada');
-//             } else {
-//                 res.json(results[0]);
-//             }
-//         }
-//     );
-// });
-
-
-// Rota para criar uma nova tarefa
-// app.post('/tarefas', isAuthenticated, (req, res) => {
-//     const { nome_criador_lista,nome_lista, titulo, descricao,data_vencimento} = req.body;
-//     const nome_criador_tarefa = req.session.user;
-//     console.log("Título: ",titulo," \n\n\n")
-
-//     const responsavel = req.session.user
-//     let queryParamsLista = []
-//     currentTime = moment().format('YYYY-MM-DD HH:mm:ss')
-//     console.log("date.now: ",currentTime)
-
-//     queryParamsLista.push(currentTime,responsavel,nome_lista,nome_criador_lista)
-//     const queryLista = `UPDATE lista SET data_mod = ?, responsavel_mod = ? WHERE nome = ? AND nome_criador = ?`
-
-//     connection.query(
-//         'INSERT INTO tarefa (nome_lista, nome_criador_lista, titulo, descricao, data_cadastro, verifica_conclusao, data_vencimento,nome_criador_tarefa) VALUES (?, ?, ?, ?, NOW(), False, ?, ?)',
-//         [nome_lista, nome_criador_lista, titulo, descricao,data_vencimento,nome_criador_tarefa],
-//         (err, results) => {
-//             if (err) throw err;
-//             res.status(201).json({ id_tarefa: results.insertId });
-
-//         connection.query(queryLista, queryParamsLista, (err, results) => {
-//                     if (err) {
-//                         console.error('Erro ao atualizar a lista pela tarefa:', err);
-//                         return res.status(500).json({ error: 'Erro ao atualizar a lista pela tarefa' });
-//                     }
-//                     res.json({ message: 'Lista pela Tarefa atualizada com sucesso', results });
-//                 });
-//         }
-//     );
-// });
 
 app.post('/tarefas', isAuthenticated, (req, res) => {
     const { nome_criador_lista, nome_lista, titulo, descricao, data_vencimento } = req.body;
@@ -544,11 +365,6 @@ app.post('/tarefas', isAuthenticated, (req, res) => {
     });
 });
 
-
-
-
-
-
 //Rota pra ver se a lista já existe
 app.get('/listas/:nome_lista/existe', (req, res) => {
     const { nome_lista } = req.params;
@@ -563,51 +379,6 @@ app.get('/listas/:nome_lista/existe', (req, res) => {
         }
     );
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Rota para atualizar o título de uma lista
 app.put('/listas/:nome/:nome_criador/:novo_nome', (req, res) => {
@@ -628,9 +399,6 @@ app.put('/listas/:nome/:nome_criador/:novo_nome', (req, res) => {
         }
     );
 });
-
-
-
 
 // Rota pra adicionar uma lista
 app.post('/listas/:username', isAuthenticated, (req, res) => {
@@ -664,47 +432,6 @@ app.get('/tarefas/:titulo_tarefa/:nome_lista/:nome_criador', (req, res) => {
     });
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Rota para atualizar tarefa
 app.put('/tarefas/:titulo/:nome_lista/:nome_criador', (req, res) => {
     const responsavel = req.session.user
@@ -713,10 +440,6 @@ app.put('/tarefas/:titulo/:nome_lista/:nome_criador', (req, res) => {
     const { novo_titulo, descricao, data_vencimento, verifica_conclusao } = req.body;
     console.log("titulo: ",titulo,"\nlista: ",nome_lista,"\ncriador_lista: ",nome_criador,"\nnovo_titulo: ",novo_titulo,"\ndescricao: ",descricao,"\ndata_vencimento: ", data_vencimento,"\nverifica_conclusão: ", verifica_conclusao)
     console.log("novo_titulo: ",novo_titulo)
-    // console.log("descricao: ",descricao)
-    // console.log("data_vencimento: ",data_vencimento)
-    // console.log("verifica_conclusao: ",verifica_conclusao)
-    // Array para armazenar as partes da consulta
     let queryParts = [];
     let queryParams = [];
 
@@ -776,9 +499,6 @@ app.put('/tarefas/:titulo/:nome_lista/:nome_criador', (req, res) => {
         });
     });
 
-    
-    
-   
 });
 
 
