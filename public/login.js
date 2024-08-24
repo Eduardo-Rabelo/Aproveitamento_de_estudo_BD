@@ -22,4 +22,15 @@ document.getElementById('loginForm').addEventListener('submit', function (e) {
     .catch(error => {
         console.error('Error:', error);
     });
+
+
+  
+
+});
+
+const goRegisterButton = document.getElementById("goRegisterButton");
+    
+goRegisterButton.addEventListener('click',() => {
+    window.location.href = '/registrate'     
+
 });

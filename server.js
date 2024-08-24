@@ -44,13 +44,13 @@ connection.connect(err => {
 
 
 
-// Rota para obter todas as listas
-app.get('/listas', (req, res) => {
-    connection.query('SELECT * FROM lista', (err, results) => {
-        if (err) throw err;
-        res.json(results);
-    });
-});
+// // Rota para obter todas as listas
+// app.get('/listas', (req, res) => {
+//     connection.query('SELECT * FROM lista', (err, results) => {
+//         if (err) throw err;
+//         res.json(results);
+//     });
+// });
 
 // Rota para obter todas as listas do usuário atual
 app.get('/listas/:username', isAuthenticated, (req, res) => {
@@ -284,6 +284,105 @@ app.get('/invites', (req, res) => {
 app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
+
+
+// Rota para a página de registro
+app.get('/registrate', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'registrate.html'));
+});
+
+// Rota para a página de registro
+app.put('/registrate/:nome/:email/:username/:senha/:telefone', (req, res) => {
+    const{nome, email, username, senha, telefone} = req.params;
+    
+    connection.query(`INSERT INTO usuario (nome_usuario, senha, nome, telefone, email) VALUES(?,?,?,?,?)`,[username,senha,nome,telefone,email],(err,results)=>{
+        if (err) {
+            console.error('Erro ao criar usuário: ', err);
+            res.status(500).json({ success: false, message: 'Erro ao criar usuário' });
+            return;
+        }else{
+            res.json({ success: true });
+        }
+
+    });
+
+    console.log("Entrei no servidor")
+});
+
+//Rota pra ver se um usuário com este username já existe
+// app.get('/registrate/:username/existe', (req, res) => {
+//     const{username} = req.params;
+//     console.log("Username a ser verificado: ",username )
+//     connection.query(`SELECT COUNT(*) FROM usuario WHERE nome_usuario = ?`,[username],(err,results)=>{
+//             if (err){ 
+//                 console.error('Erro ao verificar usuário: ', err);
+//                 res.status(500).json({ success: false, message: 'Erro ao verificar usuário' });
+//                 return;
+//             }
+//             const count = results[0].count;
+//             console.log('count: ',count)
+//             res.json({ exists: count > 0 });
+//         }
+
+//     });
+
+//     console.log("Entrei no servidor com o verificar username")
+// });
+
+app.get('/registrate/:username/existe', (req, res) => {
+    const { username } = req.params;
+    console.log("Username a ser verificado: ", username);
+    
+    connection.query(`SELECT COUNT(*) as count FROM usuario WHERE nome_usuario = ?`, [username], (err, results) => {
+        if (err) {
+            console.error('Erro ao verificar se usuário existe: ', err);
+            res.status(500).json({ success: false, message: 'Erro ao verificar se usuário existe' });
+            return;
+        }
+        
+        const count = results[0].count;
+        console.log('count: ', count);
+        const exists = count > 0;
+        console.log('exists: ', exists);
+        res.json({ exists: exists });
+        // console.log('exists: count > 0 :',res.exists )
+    });
+
+    console.log("Entrei no servidor com o verificar username");
+});
+
+
+
+
+
+
+
+
+
+//Rota pra ver se um usuário com este e-mail já existe
+app.get('/registrate/:email/email-existe', (req, res) => {
+    const { email } = req.params;
+    console.log("email a ser verificado: ", email);
+    
+    connection.query(`SELECT COUNT(*) as count FROM usuario WHERE email = ?`, [email], (err, results) => {
+        if (err) {
+            console.error('Erro ao verificar se usuário existe: ', err);
+            res.status(500).json({ success: false, message: 'Erro ao verificar se email existe' });
+            return;
+        }
+        
+        const count = results[0].count;
+        console.log('count: ', count);
+        const exists = count > 0;
+        console.log('exists: ', exists);
+        res.json({ exists: exists });
+        // console.log('exists: count > 0 :',res.exists )
+    });
+
+    console.log("Entrei no servidor com o verificar e-mail");
+});
+
+
 
 // Rota para autenticação
 app.post('/login', (req, res) => {
