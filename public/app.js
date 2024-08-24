@@ -15,11 +15,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     const safeNome = encodeURIComponent(list.nome)
                     const safeNomeCriadorLista = encodeURIComponent(list.nome_criador)
                     const data_mod = moment(list.data_mod).format('YYYY-MM-DD HH:mm:ss'); 
+                    const data_criacao = moment(list.data_criacao).format('YYYY-MM-DD HH:mm:ss'); 
                     console.log("dataMod: ",data_mod)
                     console.log("safeNome: ",safeNome);
                     console.log("safeNome: ",safeNome);
                     listElement.innerHTML = `
-                        <span>Nome: ${list.nome} Criador: ${list.nome_criador} ultima_modificação: ${data_mod} ultimo_a_modificar: ${list.responsavel_mod}</span>
+                        <span>Nome: ${list.nome} Criador: ${list.nome_criador} data da Criação: ${data_criacao}  ultima_modificação: ${data_mod} ultimo_a_modificar: ${list.responsavel_mod}</span>
                         <button class = "delete-list-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Excluir</button> 
                         <button class = "enter-list-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Entrar</button>
                         <button class = "edit-list-title-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Mudar nome</button>
@@ -168,6 +169,38 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = '/invites'     
     
     })
+
+    //Usa a rota pra pegar o número de convites
+    async function verificarNotificacoes() { 
+        try {
+            const response = await fetch(`/notificacoes/:nome_usuario`);
+            const data = await response.json();
+            
+            if (data.count > 0) {
+                mostrarNotificacao(data.count);
+            }
+        } catch (error) {
+            console.error('Erro ao verificar notificações:', error);
+        }
+    }
+
+    //Cria a notificação de convites
+    function mostrarNotificacao(contagem) {
+        const notificationElement = document.createElement('div');
+        notificationElement.className = 'notification';
+        notificationElement.textContent = `Você tem ${contagem} convite(s).`;
+        
+        document.body.appendChild(notificationElement);
+        
+        // Opcional: Adicionar estilos e lógica para a notificação desaparecer após um tempo
+        setTimeout(() => {
+            notificationElement.remove();
+        }, 3000);
+    }
+    
+    // Chamar a função de verificação de convites quando o usuário carrega a página
+    window.addEventListener('load', verificarNotificacoes);
+    
     
     // loadTasks();
 });

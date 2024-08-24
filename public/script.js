@@ -92,10 +92,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return
         }
         const description = prompt('Digite a descrição da tarefa:');
-        const data_vencimento = prompt('Digite a data de vencimento da tarefa  (YYYY-MM-DD):');
-        if (!isValidDate(data_vencimento)) {
-            alert('Data de vencimento inválida. Use o formato YYYY-MM-DD.');
-            return;
+        let data_vencimento = prompt('Digite a data de vencimento da tarefa  (YYYY-MM-DD):');
+        console.log("dataVencimento:",data_vencimento)
+        if(data_vencimento){
+            if (!isValidDate(data_vencimento)) {
+                alert('Data de vencimento inválida. Use o formato YYYY-MM-DD.');
+                return;
+            }
+        }else{
+            data_vencimento = null;
         }
 
         try{
@@ -163,13 +168,20 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(response => response.json())
             .then(task => {
                 // Aqui você pode exibir os detalhes da tarefa como desejar
+                
+                const dataVencimento = moment(task.data_vencimento).format('YYYY-MM-DD HH:mm:ss');
+                let safeDataVencimento = dataVencimento;
+                if(task.data_vencimento === null){
+                    safeDataVencimento = null;
+                }
+
                 const taskDetails = `
                     <div>
                         <h3>Detalhes da Tarefa</h3>
                         <p><strong>Título:</strong> ${task.titulo}</p>
                         <p><strong>Descrição:</strong> ${task.descricao}</p>
                         <p><strong>Data de Cadastro:</strong> ${moment(task.data_cadastro).format('YYYY-MM-DD HH:mm:ss')}</p>
-                        <p><strong>Data de Vencimento:</strong> ${moment(task.data_vencimento).format('YYYY-MM-DD HH:mm:ss')}</p>
+                        <p><strong>Data de Vencimento:</strong> ${safeDataVencimento}</p>
                         <p><strong>Concluída:</strong> ${task.verifica_conclusao ? "Sim":"Não"}</p>
                     </div>
                 `;

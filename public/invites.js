@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     inviteElement.innerHTML = `
                         <span>Nome da lista: ${invite.nome_lista} Criador da lista: ${invite.nome_criador_lista} </span>
                         <button class = "delete-invite-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Excluir</button> 
-                        <button class = "accept-invite-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Entrar</button>
+                        <button class = "accept-invite-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Aceitar</button>
 
                     `;
                     // <button onclick="deleteinvite('${invite.nome}', '${invite.nome_criador}')">Excluir</button>

@@ -1,7 +1,6 @@
 const moment = require('moment')
 const express = require('express');
 const mysql = require('mysql2');
-// const mysql = require('mysql2/promise'); // Importe a versão de promessas
 const bodyParser = require('body-parser');
 const path = require('path');
 const session = require('express-session');
@@ -14,7 +13,7 @@ app.use(session({
     secret: 'sua_chave_secreta',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }  // secure: true em produção com HTTPS
+    cookie: { secure: false }  
 }));
 
 const connection =  mysql.createConnection({
@@ -77,7 +76,12 @@ app.get('/listas/:username', isAuthenticated, (req, res) => {
 //Rota para deletar uma lista
 app.delete('/listas/:nome_lista/:nome_criador_lista', (req, res) => {
     const { nome_lista, nome_criador_lista } = req.params;
-
+    if(req.session.user != nome_criador_lista){
+        console.log('Usuário autenticado:', req.session.user);
+        console.log('Nome do criador da lista:', nome_criador_lista);
+        console.log("não é o criador");
+        return;
+    }
     // Execute a primeira consulta
     connection.query('DELETE FROM lista_usuario WHERE nome_lista = ? AND nome_criador_lista = ? AND validada = TRUE;', [nome_lista, nome_criador_lista], (err) => {
         if (err) {
@@ -171,6 +175,20 @@ app.get('/convites/:nome_convidado/:nome_lista/:nome_criador_lista/existe', (req
     );
 });
 
+app.get('/notificacoes/:nome_usuario', (req, res) => {
+    const nome_usuario = req.session.user;
+
+    connection.query('SELECT COUNT(*) AS count FROM lista_usuario WHERE nome_usuario = ? AND validada = FALSE', [nome_usuario], (err, results) => {
+        if (err) {
+            console.error('Erro ao buscar convites:', err);
+            return res.status(500).json({ success: false, message: 'Erro ao buscar convites' });
+        }
+
+        const count = results[0].count;
+        res.json({ count });
+    });
+});
+
 
 //Rota pra ver se o convidado existe
 app.get('/convites/:nome_convidado/existe', (req, res) => {
@@ -212,6 +230,26 @@ app.get('/convites/:username', isAuthenticated, (req, res) => {
         res.json(results);
     });
 });
+
+
+// // Rota para obter contador dos convites do usuário atual
+// app.get('/convites/:username/count', isAuthenticated, (req, res) => {
+//     console.log("Entrei no convites/:username/count")
+//     const username = req.session.user;
+
+//     const sqlQuery = `
+//     SELECT COUNT(*) as count FROM lista_usuario WHERE nome_usuario = ? AND validada = FALSE
+// `   ;
+//     connection.query(sqlQuery, [username], (err, results) => {
+//         if (err) {
+//             console.error('Erro ao recuperar convites do usuário:', err);
+//             res.status(500).json({ success: false, message: 'Erro ao recuperar convites do usuário' });
+//             return;
+//         }
+//         res.json(results);
+//     });
+// });
+
 
 //método para aceitar convite
 app.put('/convites/aceitar/:nome_lista/:nome_criador_lista',(req,res)=>
@@ -428,7 +466,7 @@ app.get('/index', isAuthenticated, (req, res) => {
 
 //Rota pra tarefa  FUNCIONA
 app.get('/tarefa', isAuthenticated, (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'tarefa.html'));
+    res.sendFile(path.join(__dirname, 'public', 'task.html'));
 });
 
 app.post('/tarefas', isAuthenticated, (req, res) => {

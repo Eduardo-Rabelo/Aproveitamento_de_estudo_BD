@@ -29,9 +29,16 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch(`/tarefas/${encodeURIComponent(titulo)}/${encodeURIComponent(lista)}/${encodeURIComponent(criador_lista)}`)
         .then(response => response.json())
         .then(task => {
+            let safeDataVencimento;
+            if(task.data_vencimento == null){
+                safeDataVencimento = null;
+            }else{
+                safeDataVencimento = moment(task.data_vencimento).format('YYYY-MM-DD HH:mm:ss')
+            }
+
             taskTitle.textContent = task.titulo;
             taskDescription.textContent = task.descricao;
-            taskDueDate.textContent = moment(task.data_vencimento).format('YYYY-MM-DD HH:mm:ss');
+            taskDueDate.textContent = safeDataVencimento;
             taskCompleted.textContent = task.verifica_conclusao ? 'Sim' : 'Não';
         });
 
