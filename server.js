@@ -51,7 +51,29 @@ connection.connect(err => {
 //     });
 // });
 
-// Rota para obter todas as listas do usuário atual
+// Rota para obter todas as listas compartilhadas com o usuário atual
+app.get('/listas/:username/compartilhadas', isAuthenticated, (req, res) => {
+    const username = req.session.user;
+
+    const sqlQuery = `
+    SELECT l.*
+    FROM lista_usuario AS lu
+    LEFT JOIN lista AS l ON l.nome = lu.nome_lista AND l.nome_criador = lu.nome_criador_lista
+    WHERE lu.nome_usuario = ? AND nome_criador != ? AND lu.validada = TRUE
+`   ;
+
+// Execução da consulta SQL
+    connection.query(sqlQuery, [username,username], (err, results) => {
+        if (err) {
+            console.error('Erro ao recuperar listas do usuário:', err);
+            res.status(500).json({ success: false, message: 'Erro ao recuperar listas do usuário' });
+            return;
+        }
+        res.json(results);
+    });
+});
+
+// Rota para obter todas as listas que o usuário atual criou
 app.get('/listas/:username', isAuthenticated, (req, res) => {
     const username = req.session.user;
 
@@ -59,10 +81,8 @@ app.get('/listas/:username', isAuthenticated, (req, res) => {
     SELECT l.*
     FROM lista_usuario AS lu
     LEFT JOIN lista AS l ON l.nome = lu.nome_lista AND l.nome_criador = lu.nome_criador_lista
-    WHERE lu.nome_usuario = ? AND lu.validada = TRUE
+    WHERE l.nome_criador = ? AND lu.validada = TRUE
 `   ;
-
-// Execução da consulta SQL
     connection.query(sqlQuery, [username], (err, results) => {
         if (err) {
             console.error('Erro ao recuperar listas do usuário:', err);

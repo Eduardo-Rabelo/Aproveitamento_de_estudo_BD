@@ -20,7 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log("safeNome: ",safeNome);
                     console.log("safeNome: ",safeNome);
                     listElement.innerHTML = `
-                        <span>Nome: ${list.nome} Criador: ${list.nome_criador} data da Criação: ${data_criacao}  ultima_modificação: ${data_mod} ultimo_a_modificar: ${list.responsavel_mod}</span>
+                        <h2>Minha lista</h2>
+                        <span>Nome: ${list.nome} Criador: ${list.nome_criador} data da Criação: ${data_criacao}  ultima_modificação: ${data_mod} </span>
                         <button class = "delete-list-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Excluir</button> 
                         <button class = "enter-list-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Entrar</button>
                         <button class = "edit-list-title-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Mudar nome</button>
@@ -70,6 +71,85 @@ document.addEventListener('DOMContentLoaded', () => {
 
             });
     };
+
+
+    const loadSharedLists = () => {
+        fetch('/listas/:username/compartilhadas') 
+            .then(response => response.json())
+            .then(lists => {
+                // list_of_lists.innerHTML = '';
+                lists.forEach(list => {
+                    const listElement = document.createElement('div');
+                    const safeNome = encodeURIComponent(list.nome)
+                    const safeNomeCriadorLista = encodeURIComponent(list.nome_criador)
+                    const data_mod = moment(list.data_mod).format('YYYY-MM-DD HH:mm:ss'); 
+                    const data_criacao = moment(list.data_criacao).format('YYYY-MM-DD HH:mm:ss'); 
+                    console.log("dataMod: ",data_mod)
+                    console.log("safeNome: ",safeNome);
+                    console.log("safeNome: ",safeNome);
+                    listElement.innerHTML = `
+                        <h2>Lista Compartilhada</h2>
+                        <span>Nome: ${list.nome} Criador: ${list.nome_criador} data da Criação: ${data_criacao}  ultima_modificação: ${data_mod} ultimo_a_modificar: ${list.responsavel_mod}</span> 
+                        <button class = "enter-list-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Entrar</button>
+                        <button class = "edit-list-title-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Mudar nome</button>
+
+                    `;
+                    // <button onclick="deleteList('${list.nome}', '${list.nome_criador}')">Excluir</button>
+                    list_of_lists.appendChild(listElement);
+                });
+
+                document.querySelectorAll('.enter-list-button').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const nome = event.target.getAttribute('x');
+                        const nome_criador = event.target.getAttribute('y');
+                        console.log("nome da lista que vou entrar: ",nome,"Criador: ",nome_criador)
+                        enterList(nome,nome_criador);
+                    });
+                });
+
+                document.querySelectorAll('.edit-list-title-button').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const nome = event.target.getAttribute('x');
+                        const nome_criador = event.target.getAttribute('y');
+                        const novo_nome = encodeURIComponent(prompt("Novo Nome:"));
+                        
+                        if(novo_nome === null || novo_nome.trim() === ""){
+                            alert("Nome Inválido")
+                            return
+                        };
+                        
+                        console.log("nome da lista cujo nome vou mudar:: ",nome,"Criador: ",nome_criador,"NovoNome: ",novo_nome)
+
+                        editListTitle(nome,nome_criador,novo_nome);
+                    });
+                });
+
+                document.querySelectorAll('.delete-list-button').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const nome = event.target.getAttribute('x');
+                        const nome_criador = event.target.getAttribute('y');
+                        console.log("nome da lista que vou excluir: ",nome,"Criador: ",nome_criador)
+                        deleteList(nome,nome_criador);
+                    });
+                });
+
+
+
+
+            });
+    };
+
+
+
+
+
+
+
+
+
+
+
+
 
     //Função pra entrar na lista
     window.enterList = (list_nome,list_nome_criador)=>{
@@ -133,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             newListName.value = '';
             loadLists();
+            loadSharedLists();
         } catch (error) {
             console.error('Erro ao verificar ou criar a lista:', error);
         }
@@ -150,6 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }).then(() => {
             loadLists();
+            loadSharedLists();
         });
     };
     
@@ -157,6 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Carregar tarefas ao carregar a página
     loadLists();
+    loadSharedLists();
 
     const goBackButton = document.getElementById("backButton");
         goBackButton.addEventListener('click',() => {
