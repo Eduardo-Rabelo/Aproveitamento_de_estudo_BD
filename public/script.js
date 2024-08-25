@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Função para deletar uma tarefa
     window.deleteTask = (titulo_tarefa) => {
-        // alert("ENTROU NA FUNÇÂO DE DELETAR")
         fetch(`/tarefas/${titulo_tarefa}`, {
             method: 'DELETE',
             headers: {
@@ -29,7 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
   
       //Função pra entrar na tarefa
     window.enterTask = (titulo)=>{
-        // alert("Entrei na função")
         titulo = decodeURIComponent(titulo)
         console.log("safeTitle: ",titulo)
         list_nome = localStorage.getItem("nome_lista")

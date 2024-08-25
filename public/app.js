@@ -274,8 +274,6 @@ document.addEventListener('DOMContentLoaded', () => {
         notificationElement.textContent = `Você tem ${contagem} convite(s).`;
         
         document.body.appendChild(notificationElement);
-        
-        // Opcional: Adicionar estilos e lógica para a notificação desaparecer após um tempo
         setTimeout(() => {
             notificationElement.remove();
         }, 3000);
@@ -284,6 +282,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // Chamar a função de verificação de convites quando o usuário carrega a página
     window.addEventListener('load', verificarNotificacoes);
     
-    
-    // loadTasks();
 });

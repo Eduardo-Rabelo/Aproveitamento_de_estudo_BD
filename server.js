@@ -44,7 +44,6 @@ app.get('/listas/:username/compartilhadas', isAuthenticated, (req, res) => {
     WHERE lu.nome_usuario = ? AND nome_criador != ? AND lu.validada = TRUE
 `   ;
 
-// Execução da consulta SQL
     connection.query(sqlQuery, [username,username], (err, results) => {
         if (err) {
             console.error('Erro ao recuperar listas do usuário:', err);
