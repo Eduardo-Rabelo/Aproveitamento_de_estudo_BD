@@ -17,8 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                nome_lista: lista, // substitua pelo nome da lista desejada
-                nome_criador_lista: criador, // substitua pelo nome do criador da lista
+                nome_lista: lista, 
+                nome_criador_lista: criador, 
             })
         }).then(() => {
             loadTasks();
@@ -58,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     todoList.appendChild(taskElement);
                 });
     
-                // Adiciona os event listeners
                 document.querySelectorAll('.enter-task-button').forEach(button => {
                     button.addEventListener('click', (event) => {
                         const titulo = event.target.getAttribute('data-title');
@@ -106,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try{
             console.log("Lista_Pré:",lista)
             const url = `/tarefas/${encodeURIComponent(title)}/existe`;
-            console.log('URL gerada:', url); // Debugging
+            console.log('URL gerada:', url); 
     
             const response = await fetch(url,{
                     method: 'PATCH',
@@ -134,10 +133,10 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: JSON.stringify({
                 nome_criador_lista : criador,
-                nome_lista: lista, // substitua pelo nome da lista desejada
+                nome_lista: lista, 
                 titulo: title,
                 descricao: description,
-                data_vencimento: data_vencimento // substitua pelo nome do responsável pela modificação
+                data_vencimento: data_vencimento 
             })
         }).then(() => {
             newTaskTitle.value = '';
@@ -167,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch(`/tarefas/${encodeURIComponent(titulo_tarefa)}/${encodeURIComponent(lista)}/${encodeURIComponent(criador)}`)
             .then(response => response.json())
             .then(task => {
-                // Aqui você pode exibir os detalhes da tarefa como desejar
+               
                 
                 const dataVencimento = moment(task.data_vencimento).format('YYYY-MM-DD HH:mm:ss');
                 let safeDataVencimento = dataVencimento;
@@ -186,12 +185,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
                 console.log("Data Cadastro: ",task.data_cadastro)
-                // Exibir os detalhes da tarefa, por exemplo, em um modal ou na própria página
                 document.getElementById('task-details').innerHTML = taskDetails;
             });
     };
 
-    // Carregar tarefas ao carregar a página
+
     loadTasks();
     const goBackButton = document.getElementById("backButton");
         goBackButton.addEventListener('click',() => {

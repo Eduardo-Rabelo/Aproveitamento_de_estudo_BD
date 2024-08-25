@@ -278,24 +278,30 @@ app.delete('/convites/recusar/:list_nome/:list_nome_criador',(req,res)=>{
 app.delete('/tarefas/:titulo_tarefa', (req, res) => {
     const { titulo_tarefa } = req.params;
     const { nome_lista, nome_criador_lista } = req.body;
-    connection.query(
-        'DELETE FROM tarefa WHERE nome_lista = ? AND nome_criador_lista = ? AND titulo = ?',
-        [nome_lista, nome_criador_lista, titulo_tarefa],
-        (err, results) => {
-            if (err) {
-                console.error('Erro ao deletar tarefa: ', err);
-                res.status(500).send('Erro ao deletar tarefa');
-                return;
-            }
-            if (results.affectedRows === 0) {
-                res.status(404).send('Tarefa não encontrada');
-                return;
-            }
-            res.status(204).send();
-        }
-    );
+    const responsavel = req.session.user;
+    const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
 
+    const deleteQuery = 'DELETE FROM tarefa WHERE nome_lista = ? AND nome_criador_lista = ? AND titulo = ?';
+    const deleteParams = [nome_lista, nome_criador_lista, titulo_tarefa];
+
+    const updateQuery = 'UPDATE lista SET data_mod = ?, responsavel_mod = ? WHERE nome = ? AND nome_criador = ?';
+    const updateParams = [currentTime, responsavel, nome_lista, nome_criador_lista];
+
+    connection.query(deleteQuery, deleteParams, (err, results) => {
+        if (err) {
+            console.error('Erro ao deletar tarefa:', err);
+            return res.status(500).json({ error: 'Erro ao deletar tarefa' });
+        }
+        connection.query(updateQuery, updateParams, (err) => {
+            if (err) {
+                console.error('Erro ao atualizar a lista:', err);
+                return res.status(500).json({ error: 'Erro ao atualizar a lista' });
+            }
+            res.status(204).send(); 
+        });
+    });
 });
+
 
 // Rota para a página de convites
 app.get('/invites', (req, res) => {

@@ -91,10 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h2>Lista Compartilhada</h2>
                         <span>Nome: ${list.nome} Criador: ${list.nome_criador} data da Criação: ${data_criacao}  ultima_modificação: ${data_mod} ultimo_a_modificar: ${list.responsavel_mod}</span> 
                         <button class = "enter-list-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Entrar</button>
-                        <button class = "edit-list-title-button" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Mudar nome</button>
+                        
 
-                    `;
-                    // <button onclick="deleteList('${list.nome}', '${list.nome_criador}')">Excluir</button>
+                    `;//<button class = "edit-list-title-button-shared" x = "${safeNome}" y = "${safeNomeCriadorLista}"->Mudar nome</button>
+                
                     list_of_lists.appendChild(listElement);
                 });
 
@@ -107,22 +107,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 });
 
-                document.querySelectorAll('.edit-list-title-button').forEach(button => {
-                    button.addEventListener('click', (event) => {
-                        const nome = event.target.getAttribute('x');
-                        const nome_criador = event.target.getAttribute('y');
-                        const novo_nome = encodeURIComponent(prompt("Novo Nome:"));
+                // document.querySelectorAll('.edit-list-title-button-shared').forEach(button => {
+                //     button.addEventListener('click', (event) => {
+                //         const nome = event.target.getAttribute('x');
+                //         const nome_criador = event.target.getAttribute('y');
+                //         const novo_nome = encodeURIComponent(prompt("Novo Nome:"));
                         
-                        if(novo_nome === null || novo_nome.trim() === ""){
-                            alert("Nome Inválido")
-                            return
-                        };
+                //         if(novo_nome === null || novo_nome.trim() === ""){
+                //             alert("Nome Inválido")
+                //             return
+                //         };
                         
-                        console.log("nome da lista cujo nome vou mudar:: ",nome,"Criador: ",nome_criador,"NovoNome: ",novo_nome)
+                //         console.log("nome da lista cujo nome vou mudar:: ",nome,"Criador: ",nome_criador,"NovoNome: ",novo_nome)
 
-                        editListTitle(nome,nome_criador,novo_nome);
-                    });
-                });
+                //         editListTitle(nome,nome_criador,novo_nome);
+                //     });
+                // });
 
                 document.querySelectorAll('.delete-list-button').forEach(button => {
                     button.addEventListener('click', (event) => {
