@@ -33,24 +33,6 @@ connection.connect(err => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-// // Rota para obter todas as listas
-// app.get('/listas', (req, res) => {
-//     connection.query('SELECT * FROM lista', (err, results) => {
-//         if (err) throw err;
-//         res.json(results);
-//     });
-// });
-
 // Rota para obter todas as listas compartilhadas com o usuário atual
 app.get('/listas/:username/compartilhadas', isAuthenticated, (req, res) => {
     const username = req.session.user;
@@ -73,15 +55,16 @@ app.get('/listas/:username/compartilhadas', isAuthenticated, (req, res) => {
     });
 });
 
+
+
 // Rota para obter todas as listas que o usuário atual criou
 app.get('/listas/:username', isAuthenticated, (req, res) => {
     const username = req.session.user;
 
     const sqlQuery = `
-    SELECT l.*
-    FROM lista_usuario AS lu
-    LEFT JOIN lista AS l ON l.nome = lu.nome_lista AND l.nome_criador = lu.nome_criador_lista
-    WHERE l.nome_criador = ? AND lu.validada = TRUE
+    SELECT *
+    FROM lista
+    WHERE nome_criador = ?
 `   ;
     connection.query(sqlQuery, [username], (err, results) => {
         if (err) {
@@ -102,7 +85,7 @@ app.delete('/listas/:nome_lista/:nome_criador_lista', (req, res) => {
         console.log("não é o criador");
         return;
     }
-    // Execute a primeira consulta
+    
     connection.query('DELETE FROM lista_usuario WHERE nome_lista = ? AND nome_criador_lista = ? AND validada = TRUE;', [nome_lista, nome_criador_lista], (err) => {
         if (err) {
             console.error('Erro ao excluir lista_usuario:', err);
@@ -110,7 +93,7 @@ app.delete('/listas/:nome_lista/:nome_criador_lista', (req, res) => {
             return;
         }
 
-        // Execute a segunda consulta
+        
         connection.query('DELETE FROM tarefa WHERE nome_lista = ? AND nome_criador_lista = ?;', [nome_lista, nome_criador_lista], (err) => {
             if (err) {
                 console.error('Erro ao excluir tarefa:', err);
@@ -118,7 +101,7 @@ app.delete('/listas/:nome_lista/:nome_criador_lista', (req, res) => {
                 return;
             }
 
-            // Execute a terceira consulta
+            
             connection.query('DELETE FROM lista WHERE nome = ? AND nome_criador = ?', [nome_lista, nome_criador_lista], (err) => {
                 if (err) {
                     console.error('Erro ao excluir lista:', err);
@@ -126,7 +109,7 @@ app.delete('/listas/:nome_lista/:nome_criador_lista', (req, res) => {
                     return;
                 }
 
-                // Todas as operações de exclusão foram concluídas com sucesso
+                
                 res.status(204).send();
             });
         });
@@ -195,6 +178,8 @@ app.get('/convites/:nome_convidado/:nome_lista/:nome_criador_lista/existe', (req
     );
 });
 
+
+//Rotapara as notificações
 app.get('/notificacoes/:nome_usuario', (req, res) => {
     const nome_usuario = req.session.user;
 
@@ -240,7 +225,6 @@ app.get('/convites/:username', isAuthenticated, (req, res) => {
     SELECT * FROM lista_usuario WHERE nome_usuario = ? AND validada = FALSE
 `   ;
 
-// Execução da consulta SQL
     connection.query(sqlQuery, [username], (err, results) => {
         if (err) {
             console.error('Erro ao recuperar convites do usuário:', err);
@@ -251,27 +235,7 @@ app.get('/convites/:username', isAuthenticated, (req, res) => {
     });
 });
 
-
-// // Rota para obter contador dos convites do usuário atual
-// app.get('/convites/:username/count', isAuthenticated, (req, res) => {
-//     console.log("Entrei no convites/:username/count")
-//     const username = req.session.user;
-
-//     const sqlQuery = `
-//     SELECT COUNT(*) as count FROM lista_usuario WHERE nome_usuario = ? AND validada = FALSE
-// `   ;
-//     connection.query(sqlQuery, [username], (err, results) => {
-//         if (err) {
-//             console.error('Erro ao recuperar convites do usuário:', err);
-//             res.status(500).json({ success: false, message: 'Erro ao recuperar convites do usuário' });
-//             return;
-//         }
-//         res.json(results);
-//     });
-// });
-
-
-//método para aceitar convite
+//Rota para aceitar convite
 app.put('/convites/aceitar/:nome_lista/:nome_criador_lista',(req,res)=>
 {
     const {nome_lista,nome_criador_lista} = req.params;
@@ -291,7 +255,7 @@ app.put('/convites/aceitar/:nome_lista/:nome_criador_lista',(req,res)=>
 
 });
 
-//método para deletar convites
+//Rota para deletar convites
 app.delete('/convites/recusar/:list_nome/:list_nome_criador',(req,res)=>{
     const {list_nome,list_nome_criador} = req.params;
     const usuario = req.session.user;
@@ -367,26 +331,6 @@ app.put('/registrate/:nome/:email/:username/:senha/:telefone', (req, res) => {
     console.log("Entrei no servidor")
 });
 
-//Rota pra ver se um usuário com este username já existe
-// app.get('/registrate/:username/existe', (req, res) => {
-//     const{username} = req.params;
-//     console.log("Username a ser verificado: ",username )
-//     connection.query(`SELECT COUNT(*) FROM usuario WHERE nome_usuario = ?`,[username],(err,results)=>{
-//             if (err){ 
-//                 console.error('Erro ao verificar usuário: ', err);
-//                 res.status(500).json({ success: false, message: 'Erro ao verificar usuário' });
-//                 return;
-//             }
-//             const count = results[0].count;
-//             console.log('count: ',count)
-//             res.json({ exists: count > 0 });
-//         }
-
-//     });
-
-//     console.log("Entrei no servidor com o verificar username")
-// });
-
 app.get('/registrate/:username/existe', (req, res) => {
     const { username } = req.params;
     console.log("Username a ser verificado: ", username);
@@ -403,7 +347,6 @@ app.get('/registrate/:username/existe', (req, res) => {
         const exists = count > 0;
         console.log('exists: ', exists);
         res.json({ exists: exists });
-        // console.log('exists: count > 0 :',res.exists )
     });
 
     console.log("Entrei no servidor com o verificar username");
@@ -434,7 +377,6 @@ app.get('/registrate/:email/email-existe', (req, res) => {
         const exists = count > 0;
         console.log('exists: ', exists);
         res.json({ exists: exists });
-        // console.log('exists: count > 0 :',res.exists )
     });
 
     console.log("Entrei no servidor com o verificar e-mail");
@@ -479,16 +421,17 @@ app.get('/app', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'app.html'));
 });
 
-//Rota pra index  FUNCIONA
+//Rota pra index  
 app.get('/index', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-//Rota pra tarefa  FUNCIONA
+//Rota pra tarefa  
 app.get('/tarefa', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'task.html'));
 });
 
+//Rota pra se criar uma tarefa 
 app.post('/tarefas', isAuthenticated, (req, res) => {
     const { nome_criador_lista, nome_lista, titulo, descricao, data_vencimento } = req.body;
     const nome_criador_tarefa = req.session.user;
@@ -497,26 +440,19 @@ app.post('/tarefas', isAuthenticated, (req, res) => {
 
     const queryParamsLista = [currentTime, responsavel, nome_lista, nome_criador_lista];
     const queryLista = `UPDATE lista SET data_mod = ?, responsavel_mod = ? WHERE nome = ? AND nome_criador = ?`;
-
-    // Inserção da tarefa
     const queryInsertTask = 'INSERT INTO tarefa (nome_lista, nome_criador_lista, titulo, descricao, data_cadastro, verifica_conclusao, data_vencimento, nome_criador_tarefa) VALUES (?, ?, ?, ?, NOW(), False, ?, ?)';
     const queryInsertParams = [nome_lista, nome_criador_lista, titulo, descricao, data_vencimento, nome_criador_tarefa];
 
-    // Executa ambas as queries em sequência e retorna uma única resposta
     connection.query(queryInsertTask, queryInsertParams, (err, results) => {
         if (err) {
             console.error('Erro ao inserir a tarefa:', err);
             return res.status(500).json({ error: 'Erro ao criar a tarefa' });
         }
-
-        // Após a tarefa ser inserida, atualiza a lista
         connection.query(queryLista, queryParamsLista, (err, updateResults) => {
             if (err) {
                 console.error('Erro ao atualizar a lista pela tarefa:', err);
                 return res.status(500).json({ error: 'Erro ao atualizar a lista pela tarefa' });
             }
-
-            // Resposta final ao cliente
             res.status(201).json({ id_tarefa: results.insertId, message: 'Tarefa e lista atualizadas com sucesso' });
         });
     });
@@ -600,7 +536,6 @@ app.put('/tarefas/:titulo/:nome_lista/:nome_criador', (req, res) => {
     let queryParts = [];
     let queryParams = [];
 
-    // Adiciona os campos a serem atualizados dinamicamente
     if (novo_titulo !== undefined) {
         queryParts.push('titulo = ?');
         queryParams.push(novo_titulo);
@@ -619,15 +554,12 @@ app.put('/tarefas/:titulo/:nome_lista/:nome_criador', (req, res) => {
         queryParams.push(verifica_conclusao);
     }
 
-    // Se não há campos a serem atualizados, retorne um erro
     if (queryParts.length === 0) {
         return res.status(400).json({ error: 'Nenhum campo para atualizar' });
     }
 
-    // Adiciona os campos identificadores aos parâmetros
     queryParams.push(titulo, nome_lista, nome_criador);
 
-    // Constrói a consulta SQL
     let queryParamsLista = []
     currentTime = moment().format('YYYY-MM-DD HH:mm:ss')
     console.log("date.now: ",currentTime)
